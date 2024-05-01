@@ -1,0 +1,38 @@
+services:
+  database:
+    container_name: database
+    image: postgres
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    ports:
+      - 5432:5432
+    networks:
+      - backend_challenge
+
+  server:
+    container_name: server
+    image: server
+    environment:
+      - DB_HOST=database
+      - DB_PORT=${DB_PORT}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+    networks:
+      - backend_challenge
+    ports:
+      - 3000:3000
+    links:
+      - database
+
+networks:
+  backend_challenge:
+    name: backend_challenge
+    driver: bridge
+
+volumes:
+  postgres-data:

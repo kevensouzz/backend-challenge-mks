@@ -16,7 +16,7 @@ import { Movie } from './movies/entities/movie.entity';
         type: 'postgres',
         host: ConfigService.get('DB_HOST'),
         port: ConfigService.get('DB_PORT'),
-        username: ConfigService.get('DB_USERNAME'),
+        username: ConfigService.get('DB_USER'),
         password: ConfigService.get('DB_PASSWORD'),
         database: ConfigService.get('DB_NAME'),
         entities: [User, Movie],
