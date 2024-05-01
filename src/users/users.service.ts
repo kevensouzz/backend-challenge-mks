@@ -67,19 +67,26 @@ export class UsersService {
     return await this.usersRepository.findOne({ where: { id } })
   }
 
-  async update(id: string, UserDto: UserDto) {
+  async update(id: string, userDto: UserDto) {
     const user = await this.findOne(id)
 
     if (!user) {
       throw new NotFoundException()
     }
 
-    if (UserDto.password) {
-      const hashedPassword = await bcrypt.hash(UserDto.password, 10);
+    if (userDto.username && userDto.username !== user.username) {
+      const existingUser = await this.usersRepository.findOne({ where: { username: userDto.username } });
+      if (existingUser) {
+        throw new ConflictException('Username already exists');
+      }
+    }
+
+    if (userDto.password) {
+      const hashedPassword = await bcrypt.hash(userDto.password, 10);
       user.password = hashedPassword;
     }
 
-    Object.assign(user, UserDto)
+    Object.assign(user, userDto)
 
     return await this.usersRepository.save(user);
   }
