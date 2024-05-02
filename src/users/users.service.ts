@@ -23,35 +23,35 @@ export class UsersService {
     }
 
     const passwordMatch = await bcrypt.compare(UserDto.password, user.password);
-
     if (!passwordMatch) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
     const payload = { sub: user.id, username: user.username }
+    const token = await this.jwtService.signAsync(payload)
 
-    return await this.jwtService.signAsync(payload)
+    return {
+      token: token
+    }
   }
 
   async register(UserDto: UserDto) {
-    try {
-      const hashedPassword = await bcrypt.hash(UserDto.password, 10);
+    const userExists = await this.usersRepository.existsBy({ username: UserDto.username });
 
-      const user = this.usersRepository.create({ ...UserDto, password: hashedPassword });
-      await this.usersRepository.save(user);
-
-      const payload = { sub: user.id, username: user.username }
-
-      return await this.jwtService.signAsync(payload)
-    } catch (error) {
-
-      if (error.code === '23505' && error.detail.includes('already exists')) {
-        throw new ConflictException('Username already exists');
-      } else {
-        throw error;
-      }
-
+    if (userExists) {
+      throw new ConflictException("Username already exists!");
     }
+
+    const hashedPassword = await bcrypt.hash(UserDto.password, 10);
+    const user = this.usersRepository.create({ ...UserDto, password: hashedPassword });
+    await this.usersRepository.save(user);
+
+    const payload = { sub: user.id, username: user.username };
+    const token = await this.jwtService.signAsync(payload);
+
+    return {
+      token: token
+    };
   }
 
   async findAll() {
