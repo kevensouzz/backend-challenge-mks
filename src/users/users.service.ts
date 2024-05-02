@@ -30,9 +30,7 @@ export class UsersService {
 
     const payload = { sub: user.id, username: user.username }
 
-    return {
-      token: await this.jwtService.signAsync(payload)
-    }
+    return await this.jwtService.signAsync(payload)
   }
 
   async register(UserDto: UserDto) {
@@ -44,10 +42,7 @@ export class UsersService {
 
       const payload = { sub: user.id, username: user.username }
 
-      return {
-        token: await this.jwtService.signAsync(payload)
-      }
-
+      return await this.jwtService.signAsync(payload)
     } catch (error) {
 
       if (error.code === '23505' && error.detail.includes('already exists')) {
