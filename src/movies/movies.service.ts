@@ -1,26 +1,60 @@
-import { Injectable } from '@nestjs/common';
-import { CreateMovieDto } from './dto/create-movie.dto';
-import { UpdateMovieDto } from './dto/update-movie.dto';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { MovieDto } from './dto/movie.dto';
+import { Repository } from 'typeorm';
+import { Movie } from './entities/movie.entity';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class MoviesService {
-  create(createMovieDto: CreateMovieDto) {
-    return 'This action adds a new movie';
+
+  constructor(
+    @InjectRepository(Movie)
+    private readonly moviesRepository: Repository<Movie>
+  ) { }
+
+  async create(movieDto: MovieDto) {
+    if (movieDto.rating < 0 || movieDto.rating > 5) {
+      throw new Error("Rating must be between 0 and 5.");
+    }
+
+    const currentYear = new Date().getFullYear();
+    if (movieDto.releaseYear < 1900 || movieDto.releaseYear > currentYear) {
+      throw new Error(`Release year must be between 1900 and ${currentYear}.`);
+    }
+
+    const movie = this.moviesRepository.create(movieDto);
+
+    return await this.moviesRepository.save(movie);
   }
 
-  findAll() {
-    return `This action returns all movies`;
+
+  async findAll() {
+    return await this.moviesRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} movie`;
+  async findOne(id: string) {
+    return await this.moviesRepository.findOne({ where: { id } })
   }
 
-  update(id: number, updateMovieDto: UpdateMovieDto) {
-    return `This action updates a #${id} movie`;
+  async update(id: string, movieDto: MovieDto) {
+    const movie = await this.findOne(id)
+
+    if (!movie) {
+      throw new NotFoundException()
+    }
+
+    Object.assign(movie, movieDto)
+
+    return await this.moviesRepository.save(movie)
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} movie`;
+  async remove(id: string) {
+    const movie = await this.findOne(id)
+
+    if (!movie) {
+      throw new NotFoundException()
+    }
+
+    return await this.moviesRepository.remove(movie)
   }
 }

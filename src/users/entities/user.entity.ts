@@ -1,4 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
+import { UUID } from "crypto";
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity({ name: "users" })

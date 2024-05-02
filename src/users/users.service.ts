@@ -59,7 +59,7 @@ export class UsersService {
   }
 
   async findOne(id: string) {
-    return await this.usersRepository.findOne({ where: { id } })
+      return await this.usersRepository.findOne({ where: { id } })
   }
 
   async update(id: string, userDto: UserDto) {
@@ -78,7 +78,7 @@ export class UsersService {
 
     if (userDto.password) {
       const hashedPassword = await bcrypt.hash(userDto.password, 10);
-      user.password = hashedPassword;
+      userDto.password = hashedPassword;
     }
 
     Object.assign(user, userDto)

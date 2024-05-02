@@ -55,6 +55,7 @@ export class UsersController {
   @ApiOkResponse()
   @ApiNotFoundResponse()
   @ApiForbiddenResponse()
+  @ApiConflictResponse()
   @ApiBearerAuth()
   //
   @Patch(':id')
