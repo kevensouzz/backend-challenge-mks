@@ -1,8 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { AuthGuard } from '../auth/auth.guard';
 import { UserDto } from './dto/user.dto';
 import { ApiBearerAuth, ApiConflictResponse, ApiCreatedResponse, ApiForbiddenResponse, ApiNotFoundResponse, ApiOkResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import { Public } from 'src/allow-anon.decorator';
 
 @ApiTags("users")
 @Controller("users")
@@ -13,6 +13,7 @@ export class UsersController {
   @ApiOkResponse()
   @ApiUnauthorizedResponse()
   //
+  @Public()
   @Post("login")
   login(@Body() userDto: UserDto) {
     return this.usersService.login(userDto);
@@ -22,6 +23,7 @@ export class UsersController {
   @ApiCreatedResponse()
   @ApiConflictResponse()
   //
+  @Public()
   @Post("register")
   register(@Body() userDto: UserDto) {
     return this.usersService.register(userDto);
@@ -32,8 +34,7 @@ export class UsersController {
   @ApiNotFoundResponse()
   @ApiForbiddenResponse()
   @ApiBearerAuth()
-  // jwt guard
-  @UseGuards(AuthGuard)
+  //
   @Get()
   findAll() {
     return this.usersService.findAll();
@@ -44,8 +45,7 @@ export class UsersController {
   @ApiNotFoundResponse()
   @ApiForbiddenResponse()
   @ApiBearerAuth()
-  // jwt guard
-  @UseGuards(AuthGuard)
+  //
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.usersService.findOne(id);
@@ -56,8 +56,7 @@ export class UsersController {
   @ApiNotFoundResponse()
   @ApiForbiddenResponse()
   @ApiBearerAuth()
-  // jwt guard
-  @UseGuards(AuthGuard)
+  //
   @Patch(':id')
   update(@Param('id') id: string, @Body() userDto: UserDto) {
     return this.usersService.update(id, userDto);
@@ -68,8 +67,7 @@ export class UsersController {
   @ApiNotFoundResponse()
   @ApiForbiddenResponse()
   @ApiBearerAuth()
-  // jwt guard
-  @UseGuards(AuthGuard)
+  //
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.usersService.remove(id);

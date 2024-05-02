@@ -5,6 +5,8 @@ import { UsersModule } from './users/users.module';
 import { MoviesModule } from './movies/movies.module';
 import { User } from './users/entities/user.entity';
 import { Movie } from './movies/entities/movie.entity';
+import { APP_GUARD } from '@nestjs/core';
+import { AuthGuard } from './auth/auth.guard';
 
 @Module({
   imports: [
@@ -25,6 +27,12 @@ import { Movie } from './movies/entities/movie.entity';
     }),
     UsersModule,
     MoviesModule
+  ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard
+    }
   ]
 })
 export class AppModule { }
