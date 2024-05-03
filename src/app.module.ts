@@ -1,29 +1,32 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './users/users.module';
 import { MoviesModule } from './movies/movies.module';
 import { User } from './users/entities/user.entity';
 import { Movie } from './movies/entities/movie.entity';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { AuthGuard } from './auth/auth.guard';
+import { CacheInterceptor, CacheModule } from '@nestjs/cache-manager';
+import { RedisClientOptions } from 'redis';
+import { redisStore } from 'cache-manager-redis-store';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
-    TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (ConfigService: ConfigService) => ({
-        type: 'postgres',
-        host: ConfigService.get('DB_HOST'),
-        port: ConfigService.get('DB_PORT'),
-        username: ConfigService.get('DB_USER'),
-        password: ConfigService.get('DB_PASSWORD'),
-        database: ConfigService.get('DB_NAME'),
-        entities: [User, Movie],
-        synchronize: true,
-      })
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      url: process.env.POSTGRES_URL,
+      entities: [User, Movie],
+      synchronize: true,
+      ssl: true
+    }),
+    CacheModule.register<RedisClientOptions>({
+      store: redisStore,
+      url: process.env.REDIS_URL,
+      ttl: 1000 * 60,
+      isGlobal: true,
+      max: 10
     }),
     UsersModule,
     MoviesModule
@@ -32,6 +35,10 @@ import { AuthGuard } from './auth/auth.guard';
     {
       provide: APP_GUARD,
       useClass: AuthGuard
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: CacheInterceptor
     }
   ]
 })

@@ -1,15 +1,18 @@
-import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, Inject, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { UserDto } from './dto/user.dto';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from "bcrypt"
 import { JwtService } from '@nestjs/jwt';
+import { Cache } from 'cache-manager';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 
 @Injectable()
 export class UsersService {
 
   constructor(
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
     private jwtService: JwtService
@@ -59,7 +62,7 @@ export class UsersService {
   }
 
   async findOne(id: string) {
-      return await this.usersRepository.findOne({ where: { id } })
+    return await this.usersRepository.findOne({ where: { id } })
   }
 
   async update(id: string, userDto: UserDto) {

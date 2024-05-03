@@ -1,13 +1,16 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { MovieDto } from './dto/movie.dto';
 import { Repository } from 'typeorm';
 import { Movie } from './entities/movie.entity';
 import { InjectRepository } from '@nestjs/typeorm';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 
 @Injectable()
 export class MoviesService {
 
   constructor(
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
     @InjectRepository(Movie)
     private readonly moviesRepository: Repository<Movie>
   ) { }

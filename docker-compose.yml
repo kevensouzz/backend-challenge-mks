@@ -13,21 +13,31 @@ services:
     networks:
       - backend_challenge
 
+  redis:
+    container_name: redis
+    image: redis
+    ports:
+      - 6379:6379
+    volumes:
+      - redis-data:/data
+    networks:
+      - backend_challenge
+    links:
+      - database
+
   server:
     container_name: server
     image: server
     environment:
-      - DB_HOST=${DB_HOST}
-      - DB_PORT=${DB_PORT}
-      - DB_USER=${DB_USER}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_NAME=${DB_NAME}
+      - REDIS_URL=${REDIS_URL}
+      - POSTGRES_URL=${POSTGRES_URL}
     networks:
       - backend_challenge
     ports:
       - 3000:3000
     links:
       - database
+      - redis
 
 networks:
   backend_challenge:
@@ -36,3 +46,4 @@ networks:
 
 volumes:
   postgres-data:
+  redis-data:
